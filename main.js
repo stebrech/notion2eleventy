@@ -9,7 +9,7 @@ const notion = new Client({ auth: process.env.NOTION_KEY });
 const n2m = new NotionToMarkdown({ notionClient: notion });
 
 // Get all posts with status defined as environment variable
-async function filteredRequest({dbId, requiredMetadata}) {
+async function filteredRequest({ dbId, requiredMetadata }) {
 	try {
 		const statusFieldType = requiredMetadata.statusFieldType;
 		const response = await notion.databases.query({
@@ -33,24 +33,37 @@ async function filteredRequest({dbId, requiredMetadata}) {
 	}
 }
 
-async function createArray({dbId, requiredMetadata, optionalMetadata}) {
+async function createArray({ dbId, requiredMetadata, optionalMetadata }) {
 	try {
-		const filteredData = await filteredRequest({dbId, requiredMetadata});
+		const filteredData = await filteredRequest({ dbId, requiredMetadata });
 		const results = filteredData.map((result) => {
-			const data = { 
-				id: result.id, 
+			const data = {
+				id: result.id,
 				cover: result.cover?.file?.url || result.cover?.external?.url,
+				layout: result.properties[requiredMetadata.layout]?.select?.name,
 				title: result.properties[requiredMetadata.title]?.title
 					?.map((text) => text.plain_text)
 					.join(""),
-				date: result.properties[requiredMetadata.date]?.date?.start.split("T")[0],
+				slug: result.properties[optionalMetadata.slug]?.rich_text
+					?.map((text) => text.plain_text)
+					.join(""),
+				date: result.properties[requiredMetadata.date]?.date?.start.split(
+					"T"
+				)[0],
 			};
 
 			for (const field of optionalMetadata.textFields) {
-				data[field] = result.properties[field]?.rich_text?.map((text) => text.plain_text).join("");
+				data[field] = result.properties[field]?.rich_text
+					?.map((text) => text.plain_text)
+					.join("");
 			}
 			for (const field of optionalMetadata.multiSelectFields) {
-				data[field] = result.properties[field]?.multi_select.map((tag) => tag.name);
+				data[field] = result.properties[field]?.multi_select.map(
+					(selection) => selection.name
+				);
+			}
+			for (const field of optionalMetadata.selectFields) {
+				data[field] = result.properties[field]?.select?.name;
 			}
 			for (const field of optionalMetadata.dateFields) {
 				data[field] = result.properties[field]?.date?.start.split("T")[0];
@@ -61,18 +74,15 @@ async function createArray({dbId, requiredMetadata, optionalMetadata}) {
 			for (const field of optionalMetadata.urlFields) {
 				data[field] = result.properties[field]?.url;
 			}
-			
+
 			data.content = undefined;
 			return data;
 		});
-		console.log(results);
 		return results;
-
 	} catch (error) {
-			console.error("Error in the createArray function:", error.message);
+		console.error("Error in the createArray function:", error.message);
 	}
 }
-
 
 // Functions to replace special characters
 function matchUmlauts(match) {
@@ -115,9 +125,11 @@ const getContent = async (id) => {
 };
 
 function camelize(str) {
-  return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function(word, index) {
-    return index === 0 ? word.toLowerCase() : word.toUpperCase();
-  }).replace(/\s+/g, '');
+	return str
+		.replace(/(?:^\w|[A-Z]|\b\w)/g, function (word, index) {
+			return index === 0 ? word.toLowerCase() : word.toUpperCase();
+		})
+		.replace(/\s+/g, "");
 }
 
 // Create content
@@ -133,9 +145,9 @@ async function createMarkdownFiles({
 }) {
 	try {
 		const arr = await createArray({
-			dbId, 
-			requiredMetadata, 
-			optionalMetadata
+			dbId,
+			requiredMetadata,
+			optionalMetadata,
 		});
 		for (i = 0; i < arr.length; i++) {
 			arr[i].content = await getContent(arr[i].id);
@@ -165,24 +177,30 @@ async function createMarkdownFiles({
 			if (permalink.includesMonth) {
 				urlPath += `${arr[i].date.match(/(?<=-)\d{2}(?=-)/g)}/`;
 			}
-			urlPath += titleSlug + "/";
+			if (optionalMetadata.slug && arr[i].slug !== "") {
+				urlPath += arr[i].slug + "/";
+			} else {
+				urlPath += titleSlug + "/";
+			}
 
 			// Add frontmatter
 			let frontmatter = "---\n";
-			frontmatter += `layout: "${layout}"\n`;
-			frontmatter += `${camelize(requiredMetadata.title)}: "${arr[i].title}"\n`;
+			frontmatter += `${camelize(requiredMetadata.layout)}: ${arr[i].layout}\n`;
+			frontmatter += `${camelize(requiredMetadata.title)}: ${arr[i].title}\n`;
 			frontmatter += `${camelize(requiredMetadata.date)}: ${arr[i].date}\n`;
 			if (arr[i].cover) {
-				frontmatter += `cover: "${arr[i].cover}"\n`;
+				frontmatter += `cover: ${arr[i].cover}\n`;
 			}
 			for (const field of optionalMetadata.textFields) {
 				if (arr[i][field]) {
-					frontmatter += `${camelize(field)}: "${arr[i][field]}"\n`;
+					frontmatter += `${camelize(field)}: ${arr[i][field]}\n`;
 				}
 			}
 			for (const field of optionalMetadata.multiSelectFields) {
 				if (arr[i][field]) {
-					frontmatter += `${camelize(field)}: [${arr[i][field].map(item => `"${item}"`).join(", ")}]\n`;
+					frontmatter += `${camelize(field)}: [${arr[i][field]
+						.map((item) => `"${item}"`)
+						.join(", ")}]\n`;
 				}
 			}
 			for (const field of optionalMetadata.dateFields) {
@@ -197,20 +215,22 @@ async function createMarkdownFiles({
 			}
 			for (const field of optionalMetadata.urlFields) {
 				if (arr[i][field]) {
-					frontmatter += `${camelize(field)}: "${arr[i][field]}"\n`;
+					frontmatter += `${camelize(field)}: ${arr[i][field]}\n`;
 				}
 			}
-			
-			frontmatter += `permalink: "${urlPath}"\n`;
+
+			if (permalink.addPermalink) {
+				frontmatter += `permalink: ${urlPath}\n`;
+			}
 			frontmatter += "---\n";
 
 			let mdContent = frontmatter + arr[i].content.parent;
 			// Add content and remove double line breaks and line breaks between images
 			mdContent = mdContent.replace(/\n{3,}/g, "\n\n");
-			// Place multiple images within one paragraph
+			// Multiple images in a row has to be within one paragraph
 			mdContent = mdContent.replace(
-				/(!\[.*?\]\(.*?\))(\s*)(!?\[.*?\]\(.*?\))+/g,
-				`$1\n$3`
+				/(?<=!\[.*\]\(.*\))\n{1,2}(?=!\[.*\]\(.*\))/g,
+				" "
 			);
 
 			// Use axaio to get images, pdfs and movies from Notion
@@ -241,7 +261,7 @@ async function createMarkdownFiles({
 
 			// Download images from Notion and replace URL in markdown file
 			let images = mdContent.match(
-				/(?<=cover:\s\")https?:\/\/.*(images\.unsplash\.com|amazonaws).*(?=\")|(?<=\!\[.*\]\()https?:\/\/.*(images\.unsplash\.com|amazonaws).*(?<!\))/g
+				/(?<=cover:\s)https?:\/\/.*(images\.unsplash\.com|amazonaws).*|https?:\/\/.*?(images\.unsplash\.com|amazonaws).*?(\.jpg|\.jpeg|\.gif|\.png|\.webp).*?(?=\))/g
 			);
 			if (images) {
 				for (j = 0; j < images.length; j++) {
@@ -251,7 +271,7 @@ async function createMarkdownFiles({
 					);
 					let imgRenamed = "";
 					if (arr[i].date) {
-						imgRenamed = 
+						imgRenamed =
 							arr[i].date.replace(/[-]/gi, "") +
 							"_" +
 							titleSlug +
@@ -266,7 +286,7 @@ async function createMarkdownFiles({
 					if (!fs.existsSync(downloadPaths.img)) {
 						fs.mkdirSync(downloadPaths.img);
 					}
-					await getFiles(imgUrl, downloadPaths.img, imgRenamed)
+					await getFiles(imgUrl, downloadPaths.img, imgRenamed);
 					mdContent = mdContent.replace(imgUrl, markdownPaths.img + imgRenamed);
 				}
 			}
@@ -286,7 +306,10 @@ async function createMarkdownFiles({
 						fs.mkdirSync(downloadPaths.pdf);
 					}
 					await getFiles(pdfUrl, downloadPaths.pdf, pdfFilename);
-					mdContent = mdContent.replace(pdfUrl, markdownPaths.pdf + pdfFilename);
+					mdContent = mdContent.replace(
+						pdfUrl,
+						markdownPaths.pdf + pdfFilename
+					);
 				}
 			}
 
@@ -305,7 +328,10 @@ async function createMarkdownFiles({
 						fs.mkdirSync(downloadPaths.movie);
 					}
 					await getFiles(movieUrl, downloadPaths.movie, movieFilename);
-					mdContent = mdContent.replace(movieUrl, markdownPaths.movie + movieFilename);
+					mdContent = mdContent.replace(
+						movieUrl,
+						markdownPaths.movie + movieFilename
+					);
 				}
 			}
 
