@@ -26,7 +26,7 @@ npm install @stebrech/notion2eleventy
 Add a js config file to your root folder and give it name like `notion2eleventy.js`:
 
 ```js
-const createMarkdownFiles = require("notion2eleventy");
+const createMarkdownFiles = require("@stebrech/notion2eleventy");
 const dbIdPosts = process.env.NOTION_DB_BLOG;
 const postType1 = {
   dbId: dbIdPosts, // id of the database. You can find it in the URL of the database or in the share link.
@@ -44,7 +44,7 @@ const postType1 = {
     slug: "", // must be type text; only needed if the automatic slug from title (like /this-is-the-title/) is not good enough. The trailing slash will be added automatically.
     textFields: ["Description"],
     multiSelectFields: ["Tags"],
-    selectFields: []
+    selectFields: [],
     dateFields: [],
     checkboxFields: [],
     urlFields: [],

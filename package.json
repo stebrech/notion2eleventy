@@ -1,6 +1,6 @@
 {
 	"name": "@stebrech/notion2eleventy",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"description": "Eleventy plugin which downloads data from Notion to your 11ty project.",
 	"main": "main.js",
 	"scripts": {
