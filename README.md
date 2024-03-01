@@ -71,7 +71,10 @@ const postType1 = {
   },
 };
 
-createMarkdownFiles(postType1);
+async function notion2eleventy() {
+  await createMarkdownFiles(postType1);
+}
+notion2eleventy()
 ```
 
 ### Environment variables
