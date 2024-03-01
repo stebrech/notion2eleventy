@@ -203,6 +203,11 @@ async function createMarkdownFiles({
 						.join(", ")}]\n`;
 				}
 			}
+			for (const field of optionalMetadata.selectFields) {
+				if (arr[i][field]) {
+					frontmatter += `${camelize(field)}: ${arr[i][field]}\n`;
+				}
+			}
 			for (const field of optionalMetadata.dateFields) {
 				if (arr[i][field]) {
 					frontmatter += `${camelize(field)}: ${arr[i][field]}\n`;
