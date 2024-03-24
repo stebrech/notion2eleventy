@@ -13,6 +13,10 @@ Eleventy plugin which downloads data from Notion to your 11ty project. While bui
 - Multiple databases can be used and allows you to create different post types.
 - The cover image in Notion will be copied to the frontmatter by default.
 
+## Updates
+
+Please check the [release notes](https://github.com/stebrech/notion2eleventy/releases) if you’re updating.
+
 ## Installation and configuration
 
 ### Install the npm package
@@ -35,33 +39,47 @@ const postType1 = {
   requiredMetadata: {
     status: "Status",
     statusFieldType: "status", // "select" or "status"
-    layout: "Layout", // must be type: select
     title: "Name", // must be type: title 
-    date: "Date", // if you want to sort your posts using this, your Notion property needs to be called Date; must be type: date
   },
   // Optional Notion database properties. You can add as many properties for each type as you need.
   optionalMetadata: {
-    slug: "", // must be type text; only needed if the automatic slug from title (like /this-is-the-title/) is not good enough. The trailing slash will be added automatically.
+    // --------------------------------
+    // Optional fields for specific use
+    // --------------------------------
+    layout: "Layout", // CHANGED to optional in v0.1.0; must be type: select
+    date: "Date", // CHANGED in v0.1.0; if you want to sort your posts using this, your Notion property needs to be called Date; must be type: date
+    // -----------------------
+    // Optional fields by type
+    // -----------------------
     textFields: ["Description"],
     multiSelectFields: ["Tags"],
     selectFields: [],
     dateFields: [],
     checkboxFields: [],
     urlFields: [],
+    numberFields: [], // ADDED in v0.1.0
+    personFields: [], // ADDED in v0.1.0
+    relationFields: [], // ADDED in v0.1.0; ATTENTION: requiredMetadata.title, optionalMetadata.date, downloadPaths.mdAddDatePrefix and permalink.slug must be configured the same in the database of the related post. 
   },
   permalink: {
-    addPermalink: true, // adds a permalink to the frontmatter
+    addPermalink: true, // ADDED in v0.1.0
     includesPostType: true,
-    includesYear: false,
-    includesMonth: false, // makes only sense if permalinkHasYear is true
+    includesYear: false, // REQUIRES optionalMetada.date
+    includesMonth: false, // REQUIRES optionalMetada.date; Makes only sense if permalinkHasYear is true
+    includesDay: false, // ADDED in v0.1.0; REQUIRES optionalMetada.date; Makes only sense if permalinkHasYear and permalinkHasMonth is true
+    slug: "", // MOVED to permalink in v0.1.0. Must be type text; Use a custom slug set in Notion. If empty the slug will be created from the title. A trailing slash will be added automatically. addPermalink must be true.
     publishPermalink: false, // if true, Notion requires a field called "Permalink" of type "URL" in the database
   },
   downloadPaths: {
     // Needs trailing slash
     md: "src/posts/",
+    mdAddDatePrefix: true, // ADDED in v0.1.0; REQUIRES optionalMetada.date
     img: "src/assets/img/",
+    imgAddDatePrefix: true, // ADDED in v0.1.0; REQUIRES optionalMetada.date
     movie: "src/assets/movie/",
+    movieAddDatePrefix: true, // ADDED in v0.1.0; REQUIRES optionalMetada.date
     pdf: "src/assets/pdf/",
+    pdfAddDatePrefix: true // ADDED in v0.1.0; REQUIRES optionalMetada.date
   },
   markdownPaths: {
     // URL path used in the markdown files
