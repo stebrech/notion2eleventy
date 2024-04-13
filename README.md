@@ -59,7 +59,9 @@ const postType1 = {
     urlFields: [],
     numberFields: [], // ADDED in v0.1.0
     personFields: [], // ADDED in v0.1.0
-    relationFields: [], // ADDED in v0.1.0; ATTENTION: requiredMetadata.title, optionalMetadata.date, downloadPaths.mdAddDatePrefix and permalink.slug must be configured the same in the database of the related post. 
+    relationFields: [], // ADDED in v0.1.0; ATTENTION: requiredMetadata.title, optionalMetadata.date, downloadPaths.mdAddDatePrefix and permalink.slug must be configured the same in the database of the related post.
+    formulaStringFields: [], // ADDED in v0.1.1; Formula fields which results to a string
+    formulaNumberFields: [], // ADDED in v0.1.1; Formula fields which results to a number
   },
   permalink: {
     addPermalink: true, // ADDED in v0.1.0

@@ -96,6 +96,16 @@ async function createArray({ dbId, requiredMetadata, optionalMetadata, permalink
 					data[field] = result.properties[field]?.relation?.map((relation) => relation.id);
 				}
 			}
+			if (optionalMetadata.formulaStringFields) {
+				for (const field of optionalMetadata.formulaStringFields) {
+					data[field] = result.properties[field]?.formula?.string;
+				}
+			}
+			if (optionalMetadata.formulaNumberFields) {
+				for (const field of optionalMetadata.formulaNumberFields) {
+					data[field] = result.properties[field]?.formula?.number;
+				}
+			}
 
 			if (permalink.slug) {
 				data.customSlug = result.properties[permalink.slug]?.rich_text
@@ -357,6 +367,20 @@ async function createMarkdownFiles({
 							);
 							frontmatter += `  - ${camelize(requiredMetadata.title)}: ${relationObject.title}\n    slug: ${relationObject.slug}\n    filename: ${relationObject.filename}\n`;
 						}
+					}
+				}
+			}
+			if (optionalMetadata.formulaStringFields) {
+				for (const field of optionalMetadata.formulaStringFields) {
+					if (arr[i][field]) {
+						frontmatter += `${camelize(field)}: ${arr[i][field]}\n`;
+					}
+				}
+			}
+			if (optionalMetadata.formulaNumberFields) {
+				for (const field of optionalMetadata.formulaNumberFields) {
+					if (arr[i][field]) {
+						frontmatter += `${camelize(field)}: ${arr[i][field]}\n`;
 					}
 				}
 			}
