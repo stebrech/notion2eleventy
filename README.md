@@ -1,101 +1,28 @@
 # notion2eleventy
 
-Eleventy plugin which downloads data from Notion to your 11ty project. While building it first fetches the content via Notions’s API and the the node package @notionhq/client. The content will be converted to md with the help of the lovely node package notion-to-md.
+`notion2eleventy` is an Eleventy plugin which downloads content from Notion depending on a defined status. It fetches the content via Notions’s API and the the node package `@notionhq/client`. The content will be converted to md with the help of the lovely node package `notion-to-md`.
 
-## Features
+## 🚀 Features
 
-- Downloads your Notion content and assets to your Eleventy project.
-- The URL of the assets will be changed to your path of your choice.
+- Downloads Notion content and assets to your Eleventy project.
 - Status driven workflow:
   - It fetches only posts in a specific status you‘ll define.
   - At the end it updates the status.
-- The notion properties can be setup in your config file and be added to the Markdown frontmatter (written in camel case).
-- Multiple databases can be used and allows you to create different post types.
+- The assets will be downloaded to the directory of choice and renamed.
+- The notion properties can be setup and added to the Markdown frontmatter (written in camel case).
+- Multiple databases can be used and allows to create different post types.
 - The cover image in Notion will be copied to the frontmatter by default.
 
-## Updates
+> [!IMPORTANT]
+> As from v0.2.0 you need to configure `notion2eleventy` via the standard `eleventy.config.js`.
 
-Please check the [release notes](https://github.com/stebrech/notion2eleventy/releases) if you’re updating.
-
-## Installation and configuration
-
-### Install the npm package
+## Install the npm package
 
 ```bash
 npm install @stebrech/notion2eleventy
 ```
 
-### Custom config file
-
-Add a js config file to your root folder and give it name like `notion2eleventy.js`:
-
-```js
-const createMarkdownFiles = require("@stebrech/notion2eleventy");
-const dbIdPosts = process.env.NOTION_DB_BLOG;
-const postType1 = {
-  dbId: dbIdPosts, // id of the database. You can find it in the URL of the database or in the share link.
-  postType: "posts",
-  // REQUIRED Notion database properties
-  requiredMetadata: {
-    status: "Status",
-    statusFieldType: "status", // "select" or "status"
-    title: "Name", // must be type: title 
-  },
-  // Optional Notion database properties. You can add as many properties for each type as you need.
-  optionalMetadata: {
-    // --------------------------------
-    // Optional fields for specific use
-    // --------------------------------
-    layout: "Layout", // CHANGED to optional in v0.1.0; must be type: select
-    date: "Date", // CHANGED in v0.1.0; if you want to sort your posts using this, your Notion property needs to be called Date; must be type: date
-    // -----------------------
-    // Optional fields by type
-    // -----------------------
-    textFields: ["Description"],
-    multiSelectFields: ["Tags"],
-    selectFields: [],
-    dateFields: [],
-    checkboxFields: [],
-    urlFields: [],
-    numberFields: [], // ADDED in v0.1.0
-    personFields: [], // ADDED in v0.1.0
-    relationFields: [], // ADDED in v0.1.0; ATTENTION: requiredMetadata.title, optionalMetadata.date, downloadPaths.mdAddDatePrefix and permalink.slug must be configured the same in the database of the related post.
-    formulaStringFields: [], // ADDED in v0.1.1; Formula fields which results to a string
-    formulaNumberFields: [], // ADDED in v0.1.1; Formula fields which results to a number
-  },
-  permalink: {
-    addPermalink: true, // ADDED in v0.1.0
-    includesPostType: true,
-    includesYear: false, // REQUIRES optionalMetada.date
-    includesMonth: false, // REQUIRES optionalMetada.date; Makes only sense if permalinkHasYear is true
-    includesDay: false, // ADDED in v0.1.0; REQUIRES optionalMetada.date; Makes only sense if permalinkHasYear and permalinkHasMonth is true
-    slug: "", // MOVED to permalink in v0.1.0. Must be type text; Use a custom slug set in Notion. If empty the slug will be created from the title. A trailing slash will be added automatically. addPermalink must be true.
-    publishPermalink: false, // if true, Notion requires a field called "Permalink" of type "URL" in the database
-  },
-  downloadPaths: {
-    // Needs trailing slash
-    md: "src/posts/",
-    mdAddDatePrefix: true, // ADDED in v0.1.0; REQUIRES optionalMetada.date
-    img: "src/assets/img/",
-    imgAddDatePrefix: true, // ADDED in v0.1.0; REQUIRES optionalMetada.date
-    movie: "src/assets/movie/",
-    movieAddDatePrefix: true, // ADDED in v0.1.0; REQUIRES optionalMetada.date
-    pdf: "src/assets/pdf/",
-    pdfAddDatePrefix: true // ADDED in v0.1.0; REQUIRES optionalMetada.date
-  },
-  markdownPaths: {
-    // URL path used in the markdown files
-    img: "/assets/img/",
-    movie: "/assets/movie/",
-    pdf: "/assets/pdf/",
-  },
-};
-
-async function notion2eleventy() {
-  await createMarkdownFiles(postType1);
-}
-notion2eleventy()
-```
+## Configure the plugin
 
 ### Environment variables
 
@@ -106,31 +33,237 @@ NOTION_KEY=
 CHECKSTATUS=
 CHECKSTATUS2=
 UPDATESTATUS=
-NOTION_DB_BLOG=
+NOTION_DB_POSTS=
 ```
-
-The first four variables are required:
 
 1. Add your API Key you created on [www.notion.so/my-integrations](https://www.notion.so/my-integrations).
-2. This is the name of the status value to take into account. Posts with other status will not be downloaded.
+2. The name of the status value to take into account. Posts with other status will not be downloaded.
 3. Maybe you need another status to check. If not just use the same name as `CHECKSTATUS`.
 4. Which status should the posts get after downloading it.
+5. The ID of the Notion database, see [Retrieve a database](https://developers.notion.com/reference/retrieve-a-database)
 
-You can use as many post types and Notion databases you want. For not sharing the id of the database, you can set this with environment variable names of your choice. This obviously must be the same name as you use in the config file.
+### Configure the plugin in `eleventy.config.js`
 
-### Extend scripts
+The minimal configuration within the `eleventy.config.js` (or `.eleventy.js`) file looks like this:
 
-Add the node script in your package.json like:
+```js
+const notion2eleventy = require("@stebrech/notion2eleventy");
 
-```json
-"scripts": {
-  "start": "node notion2eleventy.js && npx @11ty/eleventy --serve",
-  "build": "node notion2eleventy.js && npx @11ty/eleventy",
+module.exports = function (eleventyConfig) {
+	eleventyConfig.addPlugin(require(notion2eleventy));
+};
+```
+
+This will use the default options. The one which need to be overwritten, have to be declared within an object (curly brackets).
+
+Example:
+
+```js
+const notion2eleventy = require("@stebrech/notion2eleventy");
+
+module.exports = function (eleventyConfig) {
+	eleventyConfig.addPlugin(notion2eleventy, {
+		dbId: process.env.NOTION_DB_BLOG,
+		postType: "blog",
+		requiredMetadata: {
+			statusFieldType: "select",
+		},
+		optionalMetadata: {
+			textFields: ["Description"],
+			multiSelectFields: ["Tags"],
+		},
+		permalink: {
+			includesYear: true,
+			includesMonth: true,
+			publishPermalink: true,
+		},
+		downloadPaths: {
+			md: "src/blog/",
+			mdAddDatePrefix: false,
+		},
+		markdownPaths: {
+			img: "src/assets/img/",
+		},
+  });
+};
+```
+
+## All Config Options
+
+| Option | Default value | Description |
+|:-- |:-- |:-- |
+| `dbId` | `process.env.NOTION_DB_POSTS` | ID of the Notion database; recommended to use env variable |
+| `postType` | `"posts"` | Give the post type a specific name. It will be used with `permalink.includesPostType` |
+
+### Required Notion metadata (database fields)
+
+```js
+// Defaults
+requiredMetadata: {
+  status: "Status",
+  statusFieldType: "status",
+  title: "Name",
+},
+```
+
+| Option | Default value | Notion data type | Description |
+|:-- |:-- |:-- |:-- |
+| `status` | `"Status"` | see `statusFieldType` | Name of the status field in Notion database |
+| `statusFieldType` | `"status"` | `"select"` or `"status"`| Type of data field in Notion database |
+| `title` | `"Name"` | title | Name of the title field in Notion database |
+
+### Optional Notion metadata (database fields)
+
+```js
+// Defaults
+optionalMetadata: {
+  layout: "",
+  date: "",
+  textFields: [],
+  multiSelectFields: [],
+  selectFields: [],
+  dateFields: [],
+  checkboxFields: [],
+  urlFields: [],
+  numberFields: [],
+  personFields: [],
+  relationFields: [],
+  formulaStringFields: [],
+  formulaNumberFields: [],
+},
+```
+
+| Option | Default value | Database property type in Notion | Description |
+|:-- |:-- |:-- |:-- |
+| `layout` | `""` | Select | In case the layout within a post type is variable. The value set in Notion will be value in the frontmatter, like `layout: awesomeLayout` |
+| `date` | `""` | Date | RELATED: [11ty docs: Content dates](https://www.11ty.dev/docs/dates/)  |
+| `textFields` | `[]` | Text | Name of text fields in Notion database. The values must be in an array. Therefore you can set multiple text fields. |
+| `multiSelectFields` | `[]` | Multi-Select | Name of multi select fields in Notion database. The values must be in an array. Therefore you can set multiple multi select fields. |
+| `selectFields` | `[]` | Select | Name of select fields in Notion database. The values must be in an array. Therefore you can set multiple select fields. |
+| `dateFields` | `[]` | Date | Name of date fields in Notion database. The values must be in an array. Therefore you can set multiple date fields. |
+| `checkboxFields` | `[]` | Checkbox | Name of checkbox fields in Notion database. The values must be in an array. Therefore you can set multiple checkbox fields. |
+| `urlFields` | `[]` | URL | Name of url fields in Notion database. The values must be in an array. Therefore you can set multiple url fields. |
+| `numberFields` | `[]` | Number | Name of number fields in Notion database. The values must be in an array. Therefore you can set multiple number fields. |
+| `personFields` | `[]` | Person | Name of person fields in Notion database. The values must be in an array. Therefore you can set multiple person fields. |
+| `relationFields` | `[]` | Name of relation fields in Notion database | Important: `requiredMetadata.title`, `optionalMetadata.date`, `downloadPaths.mdAddDatePrefix` and `permalink.slug` must be configured the same in the database of the related post. The values must be in an array. Therefore you can set multiple relation fields. |
+| `formulaStringFields` | `[]`| Name of formula fields (type string) in Notion database | Formula fields which results to a string. The values must be in an array. Therefore you can set multiple formula fields. |
+| `formulaNumberFields` | `[]`| Name of formula fields (type number) in Notion database | Formula fields which results to a number. The values must be in an array. Therefore you can set multiple formular fields. |
+
+### Permalink settings
+
+```js
+// Defaults
+permalink: {
+  addPermalink: true,
+  includesPostType: true,
+  includesYear: false,
+  includesMonth: false,
+  includesDay: false,
+  slug: "",
+  publishPermalink: false,
 }
 ```
+
+| Option | Default value | Database property type in Notion | Description |
+|:-- |:-- |:-- |:-- |
+| `addPermalink` | `true` | – | Boolean (`true` or `false`) |
+| `includesPostType` | `true`| – | Boolean (`true` or `false`) |
+| `includesYear` | `false` | – | Boolean (`true` or `false`); Requires `optionalMetada.date` |
+| `includesMonth` | `false` | – | Boolean (`true` or `false`); Requires `optionalMetada.date`; Makes only sense if `includesYear` is true |
+| `includesDay` | `false` | – | Boolean (`true` or `false`); Requires `optionalMetada.date`; Makes only sense if `includesYear` and `includesMonth` is true |
+| `slug` | `""` | Text | Define a custom slug in Notion. If empty the slug will be created from the title. A trailing slash will be added automatically. `addPermalink` must be true. |
+| `publishPermalink` | `false` | URL | if `true`, it requires a Notion property called "Permalink" of type "URL". |
+
+### Download paths
+
+```js
+// Defaults
+downloadPaths: {
+  md: "src/posts/",
+  mdAddDatePrefix: false,
+  img: "src/assets/img/",
+  imgAddDatePrefix: false,
+  movie: "src/assets/movie/",
+  movieAddDatePrefix: false,
+  pdf: "src/assets/pdf/",
+  pdfAddDatePrefix: false,
+}
+```
+
+| Option | Default value | Description |
+|:-- |:-- |:-- |
+| md | `"src/posts/"` | Download directory of the markdown files |
+| mdAddDatePrefix | `false` | Add a date prefix to markdown files. Requires `optionalMetadata.date` |
+| img | `"src/assets/img/"` | Download directory of the image files |
+| imgAddDatePrefix | `false` | Add a date prefix to image files. Requires `optionalMetada.date` |
+| movie | `"src/assets/movie/"` | Download directory of the movie files |
+| movieAddDatePrefix | `false` | Add a date prefix to movie files. Requires `optionalMetada.date` |
+| pdf | `"src/assets/pdf/"` | Download directory of the pdf files |
+| pdfAddDatePrefix | `false` | Add a date prefix to pdf files. Requires `optionalMetada.date` |
+
+### Markdown paths
+
+```js
+// Defaults
+markdownPaths: {
+  img: "/assets/img/",
+  movie: "/assets/movie/",
+  pdf: "/assets/pdf/",
+}
+```
+
+| Option | Default value | Description |
+|:-- |:-- |:-- |
+| `img` | `"/assets/img/"` | Image paths which are used in the Markdown pages. |
+| `movie` | `"/assets/movie/"` | Movie paths which are used in the Markdown pages. |
+| `pdf` | `"/assets/pdf/"` | PDF paths which are used in the Markdown pages. |
+
+## Use multiple Notion databases
+
+For creating multiple post types in Eleventy, you can create multiple Notion databases. Therefore you’ll call the plugin multiple times in your `eleventy.config.js`.
+
+Example:
+
+```js
+const notion2eleventy = require("@stebrech/notion2eleventy");
+
+module.exports = function (eleventyConfig) {
+  // Posts
+  eleventyConfig.addPlugin(notion2eleventy, {
+    requiredMetadata: {
+      title: "Title",
+    }
+  });
+
+  // Pages
+  eleventyConfig.addPlugin(notion2eleventy, {
+    dbId: process.env.NOTION_DB_PAGES,
+    postType: "pages",
+    requiredMetadata: {
+      title: "Title",
+    },
+    optionalMetadata: {
+      textFields: ["Description"],
+    },
+    downloadPaths: {
+      md: "src/pages/",
+    }
+  });
+}
+```
+
+### ~~Extend scripts~~
+
+~~Add the node script in your package.json like:~~
+
+> [!NOTE]  
+> This is no longer necessary as of version v0.2.0
+
 
 ## Feedback / Contribution
 
 Please give me feedback dropping me a [mail](mailto:mail@stebre.ch) or reach out to me on the [Mastodon](https://fosstodon.org/@stebre).
 
 If you find a bug or want to send a feature request please raise an issue on Github. You have a concrete solution – even better. I’m happy to receive your pull request on a separate branch.
+
+<script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="stebre" data-color="#FFDD00" data-emoji="☕" data-font="Lato" data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#000000" data-coffee-color="#ffffff" ></script>
