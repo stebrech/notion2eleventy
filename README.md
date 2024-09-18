@@ -50,7 +50,7 @@ The minimal configuration within the `eleventy.config.js` (or `.eleventy.js`) fi
 const notion2eleventy = require("@stebrech/notion2eleventy");
 
 module.exports = function (eleventyConfig) {
-	eleventyConfig.addPlugin(require(notion2eleventy));
+  eleventyConfig.addPlugin(notion2eleventy);
 };
 ```
 
@@ -62,28 +62,28 @@ Example:
 const notion2eleventy = require("@stebrech/notion2eleventy");
 
 module.exports = function (eleventyConfig) {
-	eleventyConfig.addPlugin(notion2eleventy, {
-		dbId: process.env.NOTION_DB_BLOG,
-		postType: "blog",
-		requiredMetadata: {
-			statusFieldType: "select",
-		},
-		optionalMetadata: {
-			textFields: ["Description"],
-			multiSelectFields: ["Tags"],
-		},
-		permalink: {
-			includesYear: true,
-			includesMonth: true,
-			publishPermalink: true,
-		},
-		downloadPaths: {
-			md: "src/blog/",
-			mdAddDatePrefix: false,
-		},
-		markdownPaths: {
-			img: "src/assets/img/",
-		},
+  eleventyConfig.addPlugin(notion2eleventy, {
+    dbId: process.env.NOTION_DB_BLOG,
+    postType: "blog",
+    requiredMetadata: {
+      statusFieldType: "select",
+    },
+    optionalMetadata: {
+      textFields: ["Description"],
+      multiSelectFields: ["Tags"],
+    },
+    permalink: {
+      includesYear: true,
+      includesMonth: true,
+      publishPermalink: true,
+    },
+    downloadPaths: {
+      md: "src/blog/",
+      mdAddDatePrefix: false,
+    },
+    markdownPaths: {
+      img: "src/assets/img/",
+    },
   });
 };
 ```
@@ -258,7 +258,6 @@ module.exports = function (eleventyConfig) {
 
 > [!NOTE]  
 > This is no longer necessary as of version v0.2.0
-
 
 ## Feedback / Contribution
 
