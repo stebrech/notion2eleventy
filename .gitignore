@@ -1,6 +1,14 @@
+# Env file
 .env
+
+# Dependencies
 node_modules
-.DS_Store
 package-lock.json
-src
+
+# OS generated files
+.DS_Store
+
+# Build and test files
 _site
+test/src/assets
+test/src/blog

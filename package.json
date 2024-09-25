@@ -1,10 +1,10 @@
 {
 	"name": "@stebrech/notion2eleventy",
-	"version": "0.2.1",
+	"version": "0.2.2",
 	"description": "Eleventy plugin which downloads data from Notion to your 11ty project.",
 	"main": "eleventy.config.js",
 	"scripts": {
-		"test": "eleventy --serve"
+		"test": "cd test && npx @11ty/eleventy --serve"
 	},
 	"repository": {
 		"type": "git",
