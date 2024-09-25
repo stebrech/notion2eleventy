@@ -95,7 +95,7 @@ module.exports = function (eleventyConfig) {
 | `dbId` | `process.env.NOTION_DB_POSTS` | ID of the Notion database; recommended to use env variable |
 | `postType` | `"posts"` | Give the post type a specific name. It will be used with `permalink.includesPostType` |
 
-### Required Notion metadata (database fields)
+### Required Notion metadata (database properties)
 
 ```js
 // Defaults
@@ -112,7 +112,7 @@ requiredMetadata: {
 | `statusFieldType` | `"status"` | `"select"` or `"status"`| Type of data field in Notion database |
 | `title` | `"Name"` | title | Name of the title field in Notion database |
 
-### Optional Notion metadata (database fields)
+### Optional Notion metadata (database properties)
 
 ```js
 // Defaults
@@ -217,6 +217,23 @@ markdownPaths: {
 | `img` | `"/assets/img/"` | Image paths which are used in the Markdown pages. |
 | `movie` | `"/assets/movie/"` | Movie paths which are used in the Markdown pages. |
 | `pdf` | `"/assets/pdf/"` | PDF paths which are used in the Markdown pages. |
+
+### Copy assets to output directory
+
+```js
+// Defaults
+copyAssetsToOutputFolder: {
+  img: true,
+  movie: true,
+  pdf: true,
+}
+```
+
+| Option | Default value | Description |
+|:-- |:-- |:-- |
+| `img` | `true` | Copy the img download folder to the output folder (default is _site) with the img path configured in `markdownPaths.img` |
+| `movie` | `true` | Copy the movie download folder to the output folder (default is _site) with the movie path configured in `markdownPaths.movie` |
+| `pdf` | `true` | Copy the pdf download folder to the output folder (default is _site) with the pdf path configured in `markdownPaths.pdf` |
 
 ## Use multiple Notion databases
 

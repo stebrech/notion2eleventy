@@ -62,6 +62,11 @@ module.exports = function (eleventyConfig, options = {}) {
 			movie: "/assets/movie/",
 			pdf: "/assets/pdf/",
 		},
+		copyAssetsToOutputFolder: {
+			img: true,
+			movie: true,
+			pdf: true,
+		},
 	};
 
 	const { dbId, postType } = { ...defaults, ...options };
@@ -70,6 +75,10 @@ module.exports = function (eleventyConfig, options = {}) {
 	const permalink = { ...defaults.permalink, ...options.permalink };
 	const downloadPaths = { ...defaults.downloadPaths, ...options.downloadPaths };
 	const markdownPaths = { ...defaults.markdownPaths, ...options.markdownPaths };
+	const copyAssetsToOutputFolder = {
+		...defaults.copyAssetsToOutputFolder,
+		...options.copyAssetsToOutputFolder,
+	};
 
 	if (typeof eleventyConfig.on !== "function") {
 		function createMarkdownFiles() {
@@ -342,9 +351,19 @@ module.exports = function (eleventyConfig, options = {}) {
 	 * Copy assets to output folder
 	 * -----------------------------------------------*/
 
-	eleventyConfig.addPassthroughCopy({
-		[downloadPaths.img]: markdownPaths.img,
-		[downloadPaths.pdf]: markdownPaths.pdf,
-		[downloadPaths.movie]: markdownPaths.movie,
-	});
+	if (copyAssetsToOutputFolder.img === true) {
+		eleventyConfig.addPassthroughCopy({
+			[downloadPaths.img]: markdownPaths.img,
+		});
+	}
+	if (copyAssetsToOutputFolder.pdf === true) {
+		eleventyConfig.addPassthroughCopy({
+			[downloadPaths.pdf]: markdownPaths.pdf,
+		});
+	}
+	if (copyAssetsToOutputFolder.movie === true) {
+		eleventyConfig.addPassthroughCopy({
+			[downloadPaths.movie]: markdownPaths.movie,
+		});
+	}
 };
