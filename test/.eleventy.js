@@ -33,6 +33,19 @@ module.exports = function (eleventyConfig) {
 		},
 		downloadPaths: {
 			md: "src/blog/",
+			mdSlugSubfolder: true,
+			img: "src/blog/",
+			imgSlugSubfolder: true,
+			imgAddDatePrefix: false,
+			movie: "src/blog/",
+			movieSlugSubfolder: true,
+			pdf: "src/blog/",
+			pdfSlugSubfolder: true,
+		},
+		markdownPaths: {
+			img: "./",
+			movie: "./",
+			pdf: "./",
 		},
 		copyAssetsToOutputFolder: {
 			img: false,

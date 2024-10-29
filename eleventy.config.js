@@ -9,6 +9,7 @@ const getAssets = require("./lib/getAssets");
 const getMarkdown = require("./lib/getMarkdown");
 const getRelationData = require("./lib/getRelationData");
 const { createSlug, createFilename, createUrlPath, camelize } = require("./lib/helpers");
+const setDownloadPaths = require("./lib/setDownloadPaths");
 
 module.exports = function (eleventyConfig, options = {}) {
 	/* ------------------------------------------------
@@ -49,12 +50,16 @@ module.exports = function (eleventyConfig, options = {}) {
 		},
 		downloadPaths: {
 			md: "src/posts/",
+			mdSlugSubfolder: false,
 			mdAddDatePrefix: false,
 			img: "src/assets/img/",
+			imgSlugSubfolder: false,
 			imgAddDatePrefix: false,
 			movie: "src/assets/movie/",
+			movieSlugSubfolder: false,
 			movieAddDatePrefix: false,
 			pdf: "src/assets/pdf/",
+			pdfSlugSubfolder: false,
 			pdfAddDatePrefix: false,
 		},
 		markdownPaths: {
@@ -109,7 +114,6 @@ module.exports = function (eleventyConfig, options = {}) {
 				arr[i].content = await getMarkdown(arr[i].id);
 				const slug = createSlug(arr[i].title);
 				const filename = createFilename(slug, arr[i].date, downloadPaths.mdAddDatePrefix);
-				const filePath = `${downloadPaths.md}${filename}`;
 				const urlPath = createUrlPath(permalink, postType, slug, arr[i].customSlug, arr[i].date);
 
 				// Add frontmatter
@@ -227,6 +231,13 @@ module.exports = function (eleventyConfig, options = {}) {
 				// Multiple images in a row has to be within one paragraph
 				mdContent = mdContent.replace(/(?<=!\[.*\]\(.*\))\n{1,2}(?=!\[.*\]\(.*\))/g, " ");
 
+				// Set download paths
+				const paths = await setDownloadPaths({ downloadPaths, slug });
+				let imgPath = paths.img;
+				let pdfPath = paths.pdf;
+				let moviePath = paths.movie;
+				let mdPath = paths.md;
+
 				// Download images from Notion and replace URL in markdown file
 				let images = mdContent.match(
 					/(?<=cover:\s)https?:\/\/.*(images\.unsplash\.com|amazonaws).*|https?:\/\/.*?(images\.unsplash\.com|amazonaws).*?(\.jpg|\.jpeg|\.gif|\.png|\.webp).*?(?=\))/g,
@@ -242,11 +253,8 @@ module.exports = function (eleventyConfig, options = {}) {
 						} else {
 							imgRenamed = `${slug}_${j}.${imgFiletype}`;
 						}
-						// check if folder exists
-						if (!fs.existsSync(downloadPaths.img)) {
-							fs.mkdirSync(downloadPaths.img, { recursive: true });
-						}
-						await getAssets(imgUrl, downloadPaths.img, imgRenamed);
+
+						await getAssets(imgUrl, imgPath, imgRenamed);
 						mdContent = mdContent.replace(imgUrl, markdownPaths.img + imgRenamed);
 					}
 				}
@@ -262,11 +270,8 @@ module.exports = function (eleventyConfig, options = {}) {
 						} else {
 							pdfRenamed = `${slug}_${j}.pdf`;
 						}
-						// check if folder exists
-						if (!fs.existsSync(downloadPaths.pdf)) {
-							fs.mkdirSync(downloadPaths.pdf, { recursive: true });
-						}
-						await getAssets(pdfUrl, downloadPaths.pdf, pdfRenamed);
+
+						await getAssets(pdfUrl, pdfPath, pdfRenamed);
 						mdContent = mdContent.replace(pdfUrl, markdownPaths.pdf + pdfRenamed);
 					}
 				}
@@ -286,19 +291,14 @@ module.exports = function (eleventyConfig, options = {}) {
 						} else {
 							movieRenamed = `${slug}_${j}.${movieFiletype}`;
 						}
-						// check if folder exists
-						if (!fs.existsSync(downloadPaths.movie)) {
-							fs.mkdirSync(downloadPaths.movie, { recursive: true });
-						}
-						await getAssets(movieUrl, downloadPaths.movie, movieRenamed);
+
+						await getAssets(movieUrl, moviePath, movieRenamed);
 						mdContent = mdContent.replace(movieUrl, markdownPaths.movie + movieRenamed);
 					}
 				}
 
 				// Write markdown files
-				if (!fs.existsSync(downloadPaths.md)) {
-					fs.mkdirSync(downloadPaths.md, { recursive: true });
-				}
+				const filePath = `${mdPath}${filename}`;
 				fs.writeFile(filePath, mdContent, (err) => {
 					if (err) {
 						console.log(err);

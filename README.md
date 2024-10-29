@@ -180,12 +180,16 @@ permalink: {
 // Defaults
 downloadPaths: {
   md: "src/posts/",
+  mdSlugSubfolder: false,
   mdAddDatePrefix: false,
   img: "src/assets/img/",
+  imgSlugSubfolder: false,
   imgAddDatePrefix: false,
   movie: "src/assets/movie/",
+  movieSlugSubfolder: false,
   movieAddDatePrefix: false,
   pdf: "src/assets/pdf/",
+  pdfSlugSubfolder: false,
   pdfAddDatePrefix: false,
 }
 ```
@@ -193,12 +197,16 @@ downloadPaths: {
 | Option | Default value | Description |
 |:-- |:-- |:-- |
 | md | `"src/posts/"` | Download directory of the markdown files |
+| mdSlugSubfolder | `false` | Write the markdown file in a specific subfolder within the download folder, named with the slug |
 | mdAddDatePrefix | `false` | Add a date prefix to markdown files. Requires `optionalMetadata.date` |
 | img | `"src/assets/img/"` | Download directory of the image files |
+| imgSlugSubfolder | `false` | Write the image files in a specific subfolder within the download folder, named with the slug |
 | imgAddDatePrefix | `false` | Add a date prefix to image files. Requires `optionalMetada.date` |
 | movie | `"src/assets/movie/"` | Download directory of the movie files |
+| movieSlugSubfolder | `false` | Write the movie files in a specific subfolder within the download folder, named with the slug |
 | movieAddDatePrefix | `false` | Add a date prefix to movie files. Requires `optionalMetada.date` |
 | pdf | `"src/assets/pdf/"` | Download directory of the pdf files |
+| pdfSlugSubfolder | `false` | Write the pdf files in a specific subfolder within the download folder, named with the slug |
 | pdfAddDatePrefix | `false` | Add a date prefix to pdf files. Requires `optionalMetada.date` |
 
 ### Markdown paths
