@@ -9,6 +9,6 @@ package-lock.json
 .DS_Store
 
 # Build and test files
-_site
+test/_site
 test/src/assets
 test/src/blog

@@ -2,6 +2,9 @@
 
 `notion2eleventy` is an Eleventy plugin which downloads content from Notion depending on a defined status. It fetches the content via Notions’s API and the the node package `@notionhq/client`. The content will be converted to md with the help of the lovely node package `notion-to-md`.
 
+> [!IMPORTANT]
+> As from v0.3.0 you need to update to Eleventy v3.
+
 ## 🚀 Features
 
 - Downloads Notion content and assets to your Eleventy project.
@@ -13,7 +16,7 @@
 - Multiple databases can be used and allows to create different post types.
 - The cover image in Notion will be copied to the frontmatter by default.
 
-> [!IMPORTANT]
+> [!NOTE]
 > As from v0.2.0 you need to configure `notion2eleventy` via the standard `eleventy.config.js`.
 
 ## Install the npm package
@@ -46,10 +49,23 @@ NOTION_DB_POSTS=
 
 The minimal configuration within the `eleventy.config.js` (or `.eleventy.js`) file looks like this:
 
-```js
-const notion2eleventy = require("@stebrech/notion2eleventy");
+#### ESM
 
-module.exports = function (eleventyConfig) {
+```js
+import notion2eleventy from "@stebrech/notion2eleventy";
+
+export default function (eleventyConfig) {
+  eleventyConfig.addPlugin(notion2eleventy);
+}
+```
+
+#### CommonJS
+
+See also [https://www.11ty.dev/docs/cjs-esm/#default-and-esm-plugins](https://www.11ty.dev/docs/cjs-esm/#default-and-esm-plugins)
+
+```js
+module.exports = async (eleventyConfig) => {
+  const { default: notion2eleventy } = await import("@stebrech/notion2eleventy");
   eleventyConfig.addPlugin(notion2eleventy);
 };
 ```
@@ -59,9 +75,9 @@ This will use the default options. The one which need to be overwritten, have to
 Example:
 
 ```js
-const notion2eleventy = require("@stebrech/notion2eleventy");
+import notion2eleventy from "@stebrech/notion2eleventy";
 
-module.exports = function (eleventyConfig) {
+export default function (eleventyConfig) {
   eleventyConfig.addPlugin(notion2eleventy, {
     dbId: process.env.NOTION_DB_BLOG,
     postType: "blog",

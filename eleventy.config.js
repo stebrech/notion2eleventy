@@ -1,16 +1,15 @@
-require("dotenv").config();
-const fs = require("fs");
+import "dotenv/config";
+import fs from "fs";
+import { Client } from "@notionhq/client";
+import createArray from "./lib/createArray.js";
+import getAssets from "./lib/getAssets.js";
+import getMarkdown from "./lib/getMarkdown.js";
+import getRelationData from "./lib/getRelationData.js";
+import { createSlug, createFilename, createUrlPath, camelize } from "./lib/helpers.js";
 
-const { Client } = require("@notionhq/client");
 const notion = new Client({ auth: process.env.NOTION_KEY });
 
-const createArray = require("./lib/createArray");
-const getAssets = require("./lib/getAssets");
-const getMarkdown = require("./lib/getMarkdown");
-const getRelationData = require("./lib/getRelationData");
-const { createSlug, createFilename, createUrlPath, camelize } = require("./lib/helpers");
-
-module.exports = function (eleventyConfig, options = {}) {
+export default function (eleventyConfig, options = {}) {
 	/* ------------------------------------------------
 	 * Default options
 	 * -----------------------------------------------*/
@@ -366,4 +365,4 @@ module.exports = function (eleventyConfig, options = {}) {
 			[downloadPaths.movie]: markdownPaths.movie,
 		});
 	}
-};
+}

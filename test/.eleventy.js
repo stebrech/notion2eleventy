@@ -1,7 +1,7 @@
-const n2e = require("../eleventy.config.js");
-require("dotenv").config();
+import n2e from "../eleventy.config.js";
+import "dotenv/config";
 
-module.exports = function (eleventyConfig) {
+export default function (eleventyConfig) {
 	eleventyConfig.addPlugin(n2e, {
 		dbId: process.env.NOTION_DB_BLOG,
 		postType: "blog",
@@ -48,4 +48,4 @@ module.exports = function (eleventyConfig) {
 			input: "src",
 		},
 	};
-};
+}

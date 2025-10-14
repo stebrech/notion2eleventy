@@ -1,8 +1,9 @@
 {
 	"name": "@stebrech/notion2eleventy",
-	"version": "0.2.2",
+	"version": "0.3.0",
 	"description": "Eleventy plugin which downloads data from Notion to your 11ty project.",
 	"main": "eleventy.config.js",
+	"type": "module",
 	"scripts": {
 		"test": "cd test && npx @11ty/eleventy --serve"
 	},
@@ -24,14 +25,14 @@
 	},
 	"homepage": "https://github.com/stebrech/notion2eleventy#readme",
 	"dependencies": {
-		"@11ty/eleventy": "^2.0.1",
-		"@notionhq/client": "^2.2.14",
-		"axios": "^1.6.2",
-		"dotenv": "^16.3.1",
+		"@notionhq/client": "^4.0.2",
+		"axios": "^1.12.2",
+		"dotenv": "^17.2.3",
 		"fs": "^0.0.1-security",
-		"notion-to-md": "^3.1.1"
+		"notion-to-md": "^3.1.9"
 	},
 	"devDependencies": {
+		"@11ty/eleventy": "^3.1.2",
 		"@stebrech/prettier-config": "^1.0.0",
 		"prettier": "^3.2.5"
 	},
