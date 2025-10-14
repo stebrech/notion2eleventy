@@ -25,7 +25,7 @@
 	},
 	"homepage": "https://github.com/stebrech/notion2eleventy#readme",
 	"dependencies": {
-		"@notionhq/client": "^4.0.2",
+		"@notionhq/client": "^5.2.0",
 		"axios": "^1.12.2",
 		"dotenv": "^17.2.3",
 		"fs": "^0.0.1-security",

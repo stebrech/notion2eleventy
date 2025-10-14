@@ -16,6 +16,7 @@ export default function (eleventyConfig, options = {}) {
 
 	const defaults = {
 		dbId: process.env.NOTION_DB_POSTS,
+		dsId: "",
 		postType: "posts",
 		requiredMetadata: {
 			status: "Status",
@@ -68,7 +69,7 @@ export default function (eleventyConfig, options = {}) {
 		},
 	};
 
-	const { dbId, postType } = { ...defaults, ...options };
+	const { dbId, dsId, postType } = { ...defaults, ...options };
 	const requiredMetadata = { ...defaults.requiredMetadata, ...options.requiredMetadata };
 	const optionalMetadata = { ...defaults.optionalMetadata, ...options.optionalMetadata };
 	const permalink = { ...defaults.permalink, ...options.permalink };
@@ -100,6 +101,8 @@ export default function (eleventyConfig, options = {}) {
 		try {
 			const arr = await createArray({
 				dbId,
+				dsId,
+				postType,
 				requiredMetadata,
 				optionalMetadata,
 				permalink,
@@ -341,8 +344,7 @@ export default function (eleventyConfig, options = {}) {
 				console.log(`No updates in ${postType}`);
 			}
 		} catch (error) {
-			// Handle errors here
-			console.error(error.message);
+			throw new Error(error);
 		}
 	});
 

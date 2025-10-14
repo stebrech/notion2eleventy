@@ -2,8 +2,9 @@
 
 `notion2eleventy` is an Eleventy plugin which downloads content from Notion depending on a defined status. It fetches the content via Notions’s API and the the node package `@notionhq/client`. The content will be converted to md with the help of the lovely node package `notion-to-md`.
 
-> [!IMPORTANT]
-> As from v0.3.0 you need to update to Eleventy v3.
+> [!IMPORTANT] Breaking changes in v0.3.0
+> - Eleventy v3 is required. The plugin now uses the newer JavaScript standard ESM (ECMAScript Modules).
+> - The new Notion API version `2025-09-03` is used and requires a `data_source_id`. However, if you not provide the id, the first one of the database will be used.
 
 ## 🚀 Features
 
@@ -70,7 +71,9 @@ module.exports = async (eleventyConfig) => {
 };
 ```
 
-This will use the default options. The one which need to be overwritten, have to be declared within an object (curly brackets).
+#### Overwrite defaults
+
+The example above uses the default values. To customize it you need to write them within an object (curly brackets).
 
 Example:
 
@@ -80,6 +83,7 @@ import notion2eleventy from "@stebrech/notion2eleventy";
 export default function (eleventyConfig) {
   eleventyConfig.addPlugin(notion2eleventy, {
     dbId: process.env.NOTION_DB_BLOG,
+    dsId: process.env.NOTION_BLOG_DATASOURCE,
     postType: "blog",
     requiredMetadata: {
       statusFieldType: "select",
@@ -109,6 +113,7 @@ export default function (eleventyConfig) {
 | Option | Default value | Description |
 |:-- |:-- |:-- |
 | `dbId` | `process.env.NOTION_DB_POSTS` | ID of the Notion database; recommended to use env variable |
+| `dsId` | "" | In the newer Notion API there can be multiple data sources. Here you can specify the one you want. See also: [https://developers.notion.com/reference/retrieve-a-data-source](https://developers.notion.com/reference/retrieve-a-data-source) |
 | `postType` | `"posts"` | Give the post type a specific name. It will be used with `permalink.includesPostType` |
 
 ### Required Notion metadata (database properties)

@@ -4,6 +4,7 @@ import "dotenv/config";
 export default function (eleventyConfig) {
 	eleventyConfig.addPlugin(n2e, {
 		dbId: process.env.NOTION_DB_BLOG,
+		dsId: process.env.NOTION_BLOG_DATASOURCE,
 		postType: "blog",
 		requiredMetadata: {
 			status: "Status_Select",
