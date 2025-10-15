@@ -2,7 +2,8 @@
 
 `notion2eleventy` is an Eleventy plugin which downloads content from Notion depending on a defined status. It fetches the content via Notions’s API and the the node package `@notionhq/client`. The content will be converted to md with the help of the lovely node package `notion-to-md`.
 
-> [!IMPORTANT] Breaking changes in v0.3.0
+> [!IMPORTANT]
+> Breaking changes in v0.3.0:
 > - Eleventy v3 is required. The plugin now uses the newer JavaScript standard ESM (ECMAScript Modules).
 > - The new Notion API version `2025-09-03` is used and requires a `data_source_id`. However, if you not provide the id, the first one of the database will be used.
 
