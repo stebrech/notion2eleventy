@@ -294,7 +294,7 @@ module.exports = function (eleventyConfig) {
 
 ~~Add the node script in your package.json like:~~
 
-> [!NOTE]  
+> [!NOTE]
 > This is no longer necessary as of version v0.2.0
 
 ## Feedback / Contribution
